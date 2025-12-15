@@ -1,6 +1,6 @@
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, orderBy as firestoreOrderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import { useFormStore } from '../../../stores/useFormStore';
 import { useAuthStore } from '../../../stores/useAuthStore';
@@ -33,18 +33,18 @@ function ResultsPage() {
         const submissionsRef = collection(db, 'forms', formId, 'submissions');
 
         // Simplified query without orderBy to avoid index issues
-        const q = query(
-          submissionsRef,
-          where('userId', '==', user.uid)
-        );
+        const q = query(submissionsRef, where('userId', '==', user.uid));
         const snapshot = await getDocs(q);
 
         if (!snapshot.empty) {
           // Get the most recent one manually
-          const docs = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          } as Response));
+          const docs = snapshot.docs.map(
+            doc =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+              }) as Response
+          );
 
           // Sort by submittedAt manually
           docs.sort((a, b) => {
@@ -106,7 +106,7 @@ function ResultsPage() {
             <div className="text-center">
               <p className="text-gray-600 text-sm mb-1">Điểm số</p>
               <p className="text-3xl font-bold text-blue-600">
-                {submission.score ||0}/{totalPoints}
+                {submission.score || 0}/{totalPoints}
               </p>
             </div>
 
@@ -123,7 +123,8 @@ function ResultsPage() {
 
           <p className="text-sm text-gray-500 border-t pt-3">
             <span className="font-semibold">Nộp bài lúc:</span>{' '}
-            {submission.submittedAt && new Date(submission.submittedAt.toDate()).toLocaleString('vi-VN')}
+            {submission.submittedAt &&
+              new Date(submission.submittedAt.toDate()).toLocaleString('vi-VN')}
           </p>
         </div>
 
@@ -141,26 +142,24 @@ function ResultsPage() {
               if (question.type === 'radio') {
                 isCorrect = userAnswer === correctAnswer;
               } else if (question.type === 'checkbox') {
-                const userArr = Array.isArray(userAnswer) ? userAnswer : [];
-                const correctArr = Array.isArray(correctAnswer) ? correctAnswer : [];
+                const userArr = Array.isArray(userAnswer) ? (userAnswer as number[]) : [];
+                const correctArr = Array.isArray(correctAnswer) ? (correctAnswer as number[]) : [];
                 isCorrect =
                   userArr.length === correctArr.length &&
-                  userArr.every((ans) => correctArr.includes(ans));
+                  userArr.every(ans => correctArr.includes(ans));
               } else if (question.type === 'text') {
                 const correctArr = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer];
-                const userStr = String(userAnswer || '').toLowerCase().trim();
-                isCorrect = correctArr.some(
-                  (ans) => String(ans).toLowerCase().trim() === userStr
-                );
+                const userStr = String(userAnswer || '')
+                  .toLowerCase()
+                  .trim();
+                isCorrect = correctArr.some(ans => String(ans).toLowerCase().trim() === userStr);
               }
 
               return (
                 <div key={question.id} className="bg-white rounded-xl shadow-md p-5">
                   <div
                     className={`flex items-center gap-2 mb-3 w-fit px-3 py-1 rounded-full font-semibold ${
-                      isCorrect
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
+                      isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                     }`}
                   >
                     {isCorrect ? (
@@ -212,13 +211,16 @@ function ResultsPage() {
                       </div>
                     ) : (
                       question.options?.map((option, optionIndex) => {
-                        const userSelected = question.type === 'radio'
-                          ? userAnswer === optionIndex
-                          : Array.isArray(userAnswer) && userAnswer.includes(optionIndex);
+                        const userSelected =
+                          question.type === 'radio'
+                            ? userAnswer === optionIndex
+                            : Array.isArray(userAnswer) && userAnswer.includes(optionIndex);
 
-                        const isCorrectOption = question.type === 'radio'
-                          ? correctAnswer === optionIndex
-                          : Array.isArray(correctAnswer) && correctAnswer.includes(optionIndex);
+                        const isCorrectOption =
+                          question.type === 'radio'
+                            ? correctAnswer === optionIndex
+                            : Array.isArray(correctAnswer) &&
+                              (correctAnswer as number[]).includes(optionIndex);
 
                         let borderClass = 'border-gray-300';
                         if (isCorrectOption && userSelected) {

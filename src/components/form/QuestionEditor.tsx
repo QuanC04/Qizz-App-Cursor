@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import type { Question, QuestionType } from '../../types';
+import React from 'react';
+import type { Question } from '../../types';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
@@ -11,11 +11,7 @@ interface QuestionEditorProps {
   onDelete: () => void;
 }
 
-export const QuestionEditor: React.FC<QuestionEditorProps> = ({
-  question,
-  onUpdate,
-  onDelete,
-}) => {
+export const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onUpdate, onDelete }) => {
   const handleContentChange = (content: string) => {
     onUpdate({ ...question, content });
   };
@@ -47,9 +43,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
   return (
     <Card className="p-6 mb-4">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-gray-700">
-          Question {question.order + 1}
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-700">Question {question.order + 1}</h3>
         <Button
           variant="danger"
           size="sm"
@@ -67,7 +61,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
           label="Question"
           placeholder="Enter your question"
           value={question.content}
-          onChange={(e) => handleContentChange(e.target.value)}
+          onChange={e => handleContentChange(e.target.value)}
         />
 
         {/* Question Type Badge */}
@@ -83,21 +77,15 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
         {/* Options for Multiple Choice and Checkbox */}
         {(question.type === 'radio' || question.type === 'checkbox') && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Options
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
             {(question.options || []).map((option, index) => (
               <div key={index} className="flex items-center space-x-2 mb-2">
                 <Input
                   placeholder={`Option ${index + 1}`}
                   value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  onChange={e => handleOptionChange(index, e.target.value)}
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveOption(index)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => handleRemoveOption(index)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -116,14 +104,12 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
 
         {/* Correct Answer */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Correct Answer
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Correct Answer</label>
           {question.type === 'radio' && (
             <select
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              value={question.correctAnswer as number ?? ''}
-              onChange={(e) => handleCorrectAnswerChange(Number(e.target.value))}
+              value={(question.correctAnswer as number) ?? ''}
+              onChange={e => handleCorrectAnswerChange(Number(e.target.value))}
             >
               <option value="">Select correct answer</option>
               {(question.options || []).map((option, index) => (
@@ -139,15 +125,13 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
                 <label key={index} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={(question.correctAnswer as number[] || []).includes(index)}
-                    onChange={(e) => {
+                    checked={((question.correctAnswer as number[]) || []).includes(index)}
+                    onChange={e => {
                       const currentAnswers = (question.correctAnswer as number[]) || [];
                       if (e.target.checked) {
                         handleCorrectAnswerChange([...currentAnswers, index]);
                       } else {
-                        handleCorrectAnswerChange(
-                          currentAnswers.filter((a) => a !== index)
-                        );
+                        handleCorrectAnswerChange(currentAnswers.filter(a => a !== index));
                       }
                     }}
                     className="w-4 h-4 text-purple-600"
@@ -160,8 +144,15 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
           {question.type === 'text' && (
             <Input
               placeholder="Enter correct answers separated by commas"
-              value={(question.correctAnswer as string[] || []).join(', ')}
-              onChange={(e) => handleCorrectAnswerChange(e.target.value.split(',').map(s => s.trim()).filter(s => s))}
+              value={((question.correctAnswer as string[]) || []).join(', ')}
+              onChange={e =>
+                handleCorrectAnswerChange(
+                  e.target.value
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(s => s)
+                )
+              }
             />
           )}
         </div>
@@ -172,7 +163,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
           label="Points"
           placeholder="Enter points for this question"
           value={question.points}
-          onChange={(e) => handlePointsChange(Number(e.target.value))}
+          onChange={e => handlePointsChange(Number(e.target.value))}
           min="0"
         />
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, X, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
 import type { Question } from '../../types';
 
 interface QuestionEditorProps {
@@ -83,7 +83,7 @@ export const QuestionEditorCard: React.FC<QuestionEditorProps> = ({
         <input
           type="text"
           value={question.content}
-          onChange={(e) => onUpdate({ ...question, content: e.target.value })}
+          onChange={e => onUpdate({ ...question, content: e.target.value })}
           placeholder="Nhập câu hỏi..."
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors"
         />
@@ -102,9 +102,7 @@ export const QuestionEditorCard: React.FC<QuestionEditorProps> = ({
       {(question.type === 'radio' || question.type === 'checkbox') && (
         <div className="mb-4">
           <div className="flex justify-between items-center mb-3">
-            <label className="block text-sm font-semibold text-gray-700">
-              Các lựa chọn
-            </label>
+            <label className="block text-sm font-semibold text-gray-700">Các lựa chọn</label>
             {!showOptions && (
               <button
                 onClick={() => {
@@ -142,7 +140,7 @@ export const QuestionEditorCard: React.FC<QuestionEditorProps> = ({
                   <input
                     type="text"
                     value={option}
-                    onChange={(e) => handleOptionChange(optionIndex, e.target.value)}
+                    onChange={e => handleOptionChange(optionIndex, e.target.value)}
                     placeholder={`Lựa chọn ${optionIndex + 1}`}
                     className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
                   />
@@ -183,7 +181,7 @@ export const QuestionEditorCard: React.FC<QuestionEditorProps> = ({
                 <input
                   type="text"
                   value={answer}
-                  onChange={(e) => handleTextAnswerChange(answerIndex, e.target.value)}
+                  onChange={e => handleTextAnswerChange(answerIndex, e.target.value)}
                   placeholder="Nhập đáp án đúng..."
                   className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
                 />
@@ -208,13 +206,11 @@ export const QuestionEditorCard: React.FC<QuestionEditorProps> = ({
 
       {/* Points */}
       <div className="mt-4">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Điểm
-        </label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Điểm</label>
         <input
           type="number"
           value={question.points}
-          onChange={(e) => onUpdate({ ...question, points: Number(e.target.value) })}
+          onChange={e => onUpdate({ ...question, points: Number(e.target.value) })}
           min="0"
           className="w-32 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
         />

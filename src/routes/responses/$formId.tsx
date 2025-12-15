@@ -51,10 +51,13 @@ function ResponsesPage() {
       try {
         const submissionsRef = collection(db, 'forms', formId, 'submissions');
         const snapshot = await getDocs(submissionsRef);
-        const submissionData: Response[] = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        } as Response));
+        const submissionData: Response[] = snapshot.docs.map(
+          doc =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            }) as Response
+        );
         setSubmissions(submissionData);
       } catch (error) {
         console.error('Error fetching submissions:', error);
@@ -83,21 +86,24 @@ function ResponsesPage() {
   }
 
   const scores = submissions.map(s => s.score || 0);
-  const avgScore = scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) : 0;
+  const avgScore =
+    scores.length > 0 ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) : 0;
 
   // Calculate average completion time
   const completionTimes = submissions
     .map(s => s.timeSpent)
     .filter(t => t !== undefined && t !== null) as number[];
-  const avgCompletionTime = completionTimes.length > 0
-    ? Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length)
-    : 0;
-  const avgTimeDisplay = avgCompletionTime > 0
-    ? `${Math.floor(avgCompletionTime / 60)}:${String(avgCompletionTime % 60).padStart(2, '0')}`
-    : '0:00';
+  const avgCompletionTime =
+    completionTimes.length > 0
+      ? Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length)
+      : 0;
+  const avgTimeDisplay =
+    avgCompletionTime > 0
+      ? `${Math.floor(avgCompletionTime / 60)}:${String(avgCompletionTime % 60).padStart(2, '0')}`
+      : '0:00';
 
   // Statistics for each question
-  const questionStats: QuestionStat[] = currentForm.questions.map((q: Question, qi: number) => {
+  const questionStats: QuestionStat[] = currentForm.questions.map((q: Question) => {
     const answers: AnswerValue[] = submissions.map(s => s.answers[q.id] ?? null);
 
     const total = submissions.length || 1;
@@ -105,7 +111,7 @@ function ResponsesPage() {
     // Count correct answers
     let correctCount = 0;
 
-    answers.forEach((ans) => {
+    answers.forEach(ans => {
       const correct = q.correctAnswer;
 
       // Skip only if truly null/undefined (allow 0 as valid answer)
@@ -121,9 +127,10 @@ function ResponsesPage() {
         const isCorrect = Number(ans) === Number(correct);
         if (isCorrect) correctCount++;
       } else if (q.type === 'checkbox') {
-        const ansArray = Array.isArray(ans) ? ans : [];
-        const correctArray = Array.isArray(correct) ? correct : [];
-        const isCorrect = ansArray.length === correctArray.length && ansArray.every(x => correctArray.includes(x));
+        const ansArray = Array.isArray(ans) ? (ans as number[]) : [];
+        const correctArray = Array.isArray(correct) ? (correct as number[]) : [];
+        const isCorrect =
+          ansArray.length === correctArray.length && ansArray.every(x => correctArray.includes(x));
         if (isCorrect) {
           correctCount++;
         }
@@ -137,41 +144,44 @@ function ResponsesPage() {
       }
     });
 
-    const correctRate = total > 0 && submissions.length > 0
-      ? ((correctCount / submissions.length) * 100).toFixed(0)
-      : '0';
+    const correctRate =
+      total > 0 && submissions.length > 0
+        ? ((correctCount / submissions.length) * 100).toFixed(0)
+        : '0';
 
     // Count for each option (radio/checkbox only)
-    const counts = q.options?.map((_, i) => {
-      return answers.filter(ans => {
-        // Skip null/undefined answers
-        if (ans === null || ans === undefined) {
-          return false;
-        }
+    const counts =
+      q.options?.map((_, i) => {
+        return answers.filter(ans => {
+          // Skip null/undefined answers
+          if (ans === null || ans === undefined) {
+            return false;
+          }
 
-        if (Array.isArray(ans)) {
-          // For checkbox, check if array includes this index
-          // Empty array means no selection
-          return ans.includes(i);
-        }
+          if (Array.isArray(ans)) {
+            // For checkbox, check if array includes this index
+            // Empty array means no selection
+            return ans.includes(i);
+          }
 
-        // For radio, -1 means no selection
-        if (ans === -1) {
-          return false;
-        }
+          // For radio, -1 means no selection
+          if (ans === -1) {
+            return false;
+          }
 
-        // Compare as numbers to handle both "0" and 0
-        return Number(ans) === i;
-      }).length;
-    }) || [];
+          // Compare as numbers to handle both "0" and 0
+          return Number(ans) === i;
+        }).length;
+      }) || [];
 
-    const options = q.options?.map((opt, i) => ({
-      label: opt,
-      count: counts[i] || 0,
-      isCorrect: Array.isArray(q.correctAnswer)
-        ? (q.correctAnswer as number[]).includes(i)
-        : i === q.correctAnswer,
-    })) || [];
+    const options =
+      q.options?.map((opt, i) => ({
+        label: opt,
+        count: counts[i] || 0,
+        isCorrect: Array.isArray(q.correctAnswer)
+          ? (q.correctAnswer as number[]).includes(i)
+          : i === q.correctAnswer,
+      })) || [];
 
     const chartData = options.map(o => ({
       name: o.label,
@@ -192,7 +202,9 @@ function ResponsesPage() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Kết quả biểu mẫu: {currentForm.title}</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">
+        Kết quả biểu mẫu: {currentForm.title}
+      </h1>
 
       {/* Overview Statistics */}
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -233,7 +245,7 @@ function ResponsesPage() {
                 {(() => {
                   // Filter out null/empty answers
                   const cleanedAnswers = question.rawAnswers.filter(
-                    (a: any) => a !== null && a !== "" && a !== undefined
+                    (a: any) => a !== null && a !== '' && a !== undefined
                   );
 
                   if (cleanedAnswers.length === 0) {
@@ -256,7 +268,7 @@ function ResponsesPage() {
                     : [String(question.correctAnswers).trim().toLowerCase()];
 
                   const barData = Object.entries(answerCounts)
-                    .filter(([_, count]) => typeof count === "number" && count >= 1)
+                    .filter(([_, count]) => typeof count === 'number' && count >= 1)
                     .map(([label, count]) => {
                       const isCorrect = correctAnswersArray.includes(label.trim().toLowerCase());
                       return {
@@ -284,7 +296,13 @@ function ResponsesPage() {
                     colors: barData.map((item, idx) => {
                       if (item.isCorrect) return '#10b981';
                       // Use colors but skip green (#10b981) to avoid confusion with correct answers
-                      const incorrectColors = ['#3b82f6', '#ec4899', '#fbbf24', '#8b5cf6', '#f43f5e'];
+                      const incorrectColors = [
+                        '#3b82f6',
+                        '#ec4899',
+                        '#fbbf24',
+                        '#8b5cf6',
+                        '#f43f5e',
+                      ];
                       return incorrectColors[idx % incorrectColors.length];
                     }),
                     dataLabels: {
@@ -294,7 +312,7 @@ function ResponsesPage() {
                       },
                     },
                     xaxis: {
-                      tickAmount: Math.max(...barData.map((item) => item.y)),
+                      tickAmount: Math.max(...barData.map(item => item.y)),
                       labels: {
                         formatter: function (val: string) {
                           return Math.floor(Number(val)).toString();
@@ -371,7 +389,7 @@ function ResponsesPage() {
                         type: 'donut',
                         width: 200,
                       },
-                      labels: question.chartData.map((d) => d.name),
+                      labels: question.chartData.map(d => d.name),
                       colors: COLORS,
                       dataLabels: {
                         enabled: true,
@@ -411,15 +429,10 @@ function ResponsesPage() {
                       },
                     };
 
-                    const pieSeries = question.chartData.map((d) => d.value);
+                    const pieSeries = question.chartData.map(d => d.value);
 
                     return (
-                      <Chart
-                        options={pieOptions}
-                        series={pieSeries}
-                        type="donut"
-                        width={200}
-                      />
+                      <Chart options={pieOptions} series={pieSeries} type="donut" width={200} />
                     );
                   })()}
                 </div>
