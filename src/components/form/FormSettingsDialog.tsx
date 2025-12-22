@@ -35,7 +35,7 @@ export const FormSettingsDialog: React.FC<FormSettingsDialogProps> = ({
 
   if (!isOpen) return null;
 
-  const formUrl = formId ? `${window.location.origin}/quiz/${formId}` : '';
+  const formUrl = formId ? `${window.location.origin}/forms/${formId}/take` : '';
 
   const handleCopy = async () => {
     try {

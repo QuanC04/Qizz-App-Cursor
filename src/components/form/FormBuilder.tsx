@@ -39,7 +39,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
   existingFormId,
 }) => {
   const { user } = useAuthStore();
-  const { createForm, updateForm, updateFormSilent } = useFormStore();
+  const { createForm, updateForm, updateFormSilent, deleteForm } = useFormStore();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -329,6 +329,25 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
     }
   };
 
+  // Handle cancel - delete auto-saved form if in create mode
+  const handleCancel = async () => {
+    // Clear any pending auto-save
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // If in create mode and form was auto-saved, delete it
+    if (mode === 'create' && formId) {
+      try {
+        await deleteForm(formId);
+      } catch (error) {
+        console.error('Error deleting auto-saved form:', error);
+      }
+    }
+
+    navigate({ to: '/dashboard' });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
@@ -499,7 +518,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         {/* Action Buttons */}
         <div className="flex gap-4 sticky bottom-4">
           <button
-            onClick={() => navigate({ to: '/dashboard' })}
+            onClick={handleCancel}
             className="px-8 py-4 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition-all cursor-pointer"
           >
             Hủy

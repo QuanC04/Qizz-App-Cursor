@@ -35,8 +35,8 @@ function HomePage() {
             <span className="text-gray-800">& Forms with Ease</span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Build, share, and analyze forms with our powerful platform.
-            Inspired by Microsoft Forms, designed for simplicity.
+            Build, share, and analyze forms with our powerful platform. Inspired by Microsoft Forms,
+            designed for simplicity.
           </p>
           <div className="flex justify-center space-x-4">
             <Button
@@ -45,8 +45,10 @@ function HomePage() {
               className="shadow-xl hover:shadow-2xl"
               onClick={handleGetStarted}
             >
-              <PlusCircle className="w-5 h-5 mr-2" />
-              Get Started Free
+              <div className="flex items-center space-x-2">
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Get Started Free
+              </div>
             </Button>
             <Link to="/forms">
               <Button size="lg" variant="secondary" className="shadow-lg hover:shadow-xl">
@@ -67,8 +69,8 @@ function HomePage() {
             </div>
             <h3 className="text-2xl font-bold mb-3 text-gray-800">Lightning Fast</h3>
             <p className="text-gray-600 leading-relaxed">
-              Create forms with multiple question types in minutes.
-              Intuitive drag-and-drop interface makes it effortless.
+              Create forms with multiple question types in minutes. Intuitive drag-and-drop
+              interface makes it effortless.
             </p>
           </div>
 
@@ -81,8 +83,8 @@ function HomePage() {
             </div>
             <h3 className="text-2xl font-bold mb-3 text-gray-800">Secure & Reliable</h3>
             <p className="text-gray-600 leading-relaxed">
-              Your data is protected with Firebase security.
-              Enterprise-grade infrastructure you can trust.
+              Your data is protected with Firebase security. Enterprise-grade infrastructure you can
+              trust.
             </p>
           </div>
 
@@ -95,8 +97,8 @@ function HomePage() {
             </div>
             <h3 className="text-2xl font-bold mb-3 text-gray-800">Powerful Analytics</h3>
             <p className="text-gray-600 leading-relaxed">
-              Track responses and analyze results in real-time.
-              Get insights with beautiful charts and statistics.
+              Track responses and analyze results in real-time. Get insights with beautiful charts
+              and statistics.
             </p>
           </div>
         </div>
@@ -124,13 +126,11 @@ function HomePage() {
           <h2 className="text-4xl font-bold mb-6 text-gray-800">
             Ready to create your first form?
           </h2>
-          <Button
-            size="lg"
-            className="shadow-xl hover:shadow-2xl"
-            onClick={handleGetStarted}
-          >
-            <Users className="w-5 h-5 mr-2" />
-            Join Now - It's Free!
+          <Button size="lg" className="shadow-xl hover:shadow-2xl" onClick={handleGetStarted}>
+            <div className="flex items-center space-x-2">
+              <Users className="w-5 h-5 mr-2" />
+              Join Now - It's Free!
+            </div>
           </Button>
         </div>
       </div>
