@@ -87,8 +87,10 @@ function DashboardPage() {
               Get started by creating your first form. It only takes a few minutes!
             </p>
             <Button onClick={() => navigate({ to: '/forms/new' })} size="lg" className="shadow-lg">
-              <PlusCircle className="w-5 h-5 mr-2" />
-              Create Your First Form
+              <div className="flex">
+                <PlusCircle className="w-5 h-5 mr-2" />
+                Create Your First Form
+              </div>
             </Button>
           </Card>
         ) : (
