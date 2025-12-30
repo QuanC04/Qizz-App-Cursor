@@ -311,12 +311,12 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         ...formSettings,
       };
 
-      if (mode === 'edit' && formId) {
-        // Update existing form
+      if (formId) {
+        // Update existing form (including auto-saved forms)
         await updateForm(formId, formData);
-        alert('Cập nhật form thành công!');
+        alert(mode === 'edit' ? 'Cập nhật form thành công!' : 'Lưu form thành công!');
       } else {
-        // Create new form
+        // Create new form (only if no auto-save has happened)
         const newFormId = await createForm(user.uid, formData);
         setFormId(newFormId);
         alert('Lưu form thành công!');
