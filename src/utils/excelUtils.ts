@@ -259,3 +259,141 @@ export const downloadExcelTemplate = (): void => {
 
   XLSX.writeFile(workbook, 'template_cau_hoi.xlsx');
 };
+
+/**
+ * Format time in seconds to MM:SS string
+ */
+const formatTime = (seconds: number | undefined): string => {
+  if (!seconds) return 'N/A';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${String(secs).padStart(2, '0')}`;
+};
+
+/**
+ * Format answer for display in Excel
+ */
+const formatAnswerForExcel = (
+  answer: string | number | number[] | null | undefined,
+  question: Question
+): string => {
+  if (answer === null || answer === undefined || answer === -1) {
+    return 'Không trả lời';
+  }
+
+  if (question.type === 'text') {
+    return String(answer);
+  }
+
+  if (question.type === 'radio') {
+    const index = Number(answer);
+    if (question.options && question.options[index]) {
+      return `${String.fromCharCode(65 + index)}. ${question.options[index]}`;
+    }
+    return String.fromCharCode(65 + index);
+  }
+
+  if (question.type === 'checkbox') {
+    const indices = Array.isArray(answer) ? answer : [];
+    if (indices.length === 0) return 'Không trả lời';
+    return indices
+      .map(i => {
+        if (question.options && question.options[i]) {
+          return `${String.fromCharCode(65 + i)}. ${question.options[i]}`;
+        }
+        return String.fromCharCode(65 + i);
+      })
+      .join(', ');
+  }
+
+  return String(answer);
+};
+
+interface ResponseData {
+  id: string;
+  userId: string;
+  userEmail: string;
+  score: number;
+  timeSpent?: number;
+  submittedAt: { toDate: () => Date } | Date;
+  answers: Record<string, string | number | number[]>;
+}
+
+/**
+ * Export responses/submissions to Excel file
+ */
+export const exportResponsesToExcel = (
+  responses: ResponseData[],
+  questions: Question[],
+  formTitle: string
+): void => {
+  if (responses.length === 0) {
+    alert('Không có kết quả nào để xuất!');
+    return;
+  }
+
+  // Calculate max possible score
+  const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+
+  // Create data rows
+  const data = responses.map((response, index) => {
+    const submittedDate = response.submittedAt instanceof Date
+      ? response.submittedAt
+      : response.submittedAt.toDate();
+
+    const row: Record<string, string | number> = {
+      'STT': index + 1,
+      'Email': response.userEmail || 'Ẩn danh',
+      'Điểm': response.score,
+      'Điểm tối đa': maxScore,
+      'Tỷ lệ đúng (%)': Math.round((response.score / maxScore) * 100),
+      'Thời gian làm bài': formatTime(response.timeSpent),
+      'Thời gian nộp': submittedDate.toLocaleString('vi-VN'),
+    };
+
+    // Add answer for each question
+    questions.forEach((q, qIndex) => {
+      const answer = response.answers[q.id];
+      row[`Câu ${qIndex + 1}`] = formatAnswerForExcel(answer, q);
+    });
+
+    return row;
+  });
+
+  // Create worksheet
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Set column widths
+  const colWidths = [
+    { wch: 5 },   // STT
+    { wch: 30 },  // Email
+    { wch: 8 },   // Điểm
+    { wch: 12 },  // Điểm tối đa
+    { wch: 15 },  // Tỷ lệ đúng
+    { wch: 18 },  // Thời gian làm bài
+    { wch: 20 },  // Thời gian nộp
+    ...questions.map(() => ({ wch: 30 })), // Câu trả lời
+  ];
+  worksheet['!cols'] = colWidths;
+
+  // Create workbook
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Kết quả');
+
+  // Also add a summary sheet
+  const summaryData = [
+    { 'Thông tin': 'Tên Form', 'Giá trị': formTitle },
+    { 'Thông tin': 'Tổng số lượt nộp', 'Giá trị': responses.length },
+    { 'Thông tin': 'Điểm trung bình', 'Giá trị': (responses.reduce((sum, r) => sum + r.score, 0) / responses.length).toFixed(2) },
+    { 'Thông tin': 'Điểm cao nhất', 'Giá trị': Math.max(...responses.map(r => r.score)) },
+    { 'Thông tin': 'Điểm thấp nhất', 'Giá trị': Math.min(...responses.map(r => r.score)) },
+    { 'Thông tin': 'Điểm tối đa có thể', 'Giá trị': maxScore },
+  ];
+  const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+  summarySheet['!cols'] = [{ wch: 25 }, { wch: 30 }];
+  XLSX.utils.book_append_sheet(workbook, summarySheet, 'Tổng quan');
+
+  // Generate filename
+  const filename = `${formTitle.replace(/[^a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF]/g, '_')}_ket_qua.xlsx`;
+  XLSX.writeFile(workbook, filename);
+};

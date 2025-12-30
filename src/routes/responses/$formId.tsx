@@ -3,10 +3,11 @@ import { useEffect, useState, useRef } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useFormStore } from '../../stores/useFormStore';
-import { Check } from 'lucide-react';
+import { Check, Download } from 'lucide-react';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 import type { Question, Response } from '../../types';
+import { exportResponsesToExcel } from '../../utils/excelUtils';
 
 export const Route = createFileRoute('/responses/$formId')({
   component: ResponsesPage,
@@ -200,11 +201,25 @@ function ResponsesPage() {
     };
   });
 
+  // Handle export to Excel
+  const handleExportExcel = () => {
+    if (!currentForm) return;
+    exportResponsesToExcel(submissions as any, currentForm.questions, currentForm.title);
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Kết quả biểu mẫu: {currentForm.title}
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Kết quả biểu mẫu: {currentForm.title}</h1>
+        <button
+          onClick={handleExportExcel}
+          disabled={submissions.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <Download size={18} />
+          Xuất Excel
+        </button>
+      </div>
 
       {/* Overview Statistics */}
       <div className="grid grid-cols-3 gap-4 mb-8">

@@ -25,6 +25,11 @@ function EditFormPage() {
         description: currentForm.description,
         status: currentForm.status,
         questions: currentForm.questions,
+        // Include timer and other settings
+        enableTimer: currentForm.enableTimer,
+        timerMinutes: currentForm.timerMinutes,
+        requireLogin: currentForm.requireLogin,
+        oneSubmissionOnly: currentForm.oneSubmissionOnly,
       });
     }
   }, [currentForm]);

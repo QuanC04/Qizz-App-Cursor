@@ -43,6 +43,13 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
     checkSubmission();
   }, [form.id, form.oneSubmissionOnly, user]);
 
+  // Always track time when quiz starts (even without timer)
+  useEffect(() => {
+    if (started && !startTime) {
+      setStartTime(Date.now());
+    }
+  }, [started, startTime]);
+
   const handleAnswerChange = (questionId: string, answer: number | number[] | string) => {
     setAnswers({ ...answers, [questionId]: answer });
   };
@@ -54,9 +61,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
       return;
     }
 
-    const timeSpent = startTime
-      ? Math.floor((Date.now() - startTime) / 1000)
-      : 0;
+    const timeSpent = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
 
     try {
       await submitResponse(
@@ -106,9 +111,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
                 />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Bạn đã nộp bài rồi
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Bạn đã nộp bài rồi</h2>
             <p className="text-lg text-gray-600">
               Form này chỉ cho phép nộp một lần. Bạn đã hoàn thành bài kiểm tra này.
             </p>
@@ -141,9 +144,7 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
                 />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Nộp bài thành công!
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Nộp bài thành công!</h2>
             <p className="text-lg text-gray-600">
               Cảm ơn bạn đã hoàn thành bài kiểm tra. Đang chuyển đến trang xem đáp án...
             </p>
@@ -165,16 +166,13 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
           </div>
 
           {/* Main content */}
-          <div className='flex flex-col items-center'>
-            <p className="text-gray-800 font-medium mb-6 text-base ">
-              Đây là biểu mẫu đã hẹn giờ.
-            </p>
+          <div className="flex flex-col items-center">
+            <p className="text-gray-800 font-medium mb-6 text-base ">Đây là biểu mẫu đã hẹn giờ.</p>
 
             <p className="text-gray-700 leading-relaxed mb-8 text-base">
-              Sau khi bắt đầu, bạn không thể tạm dừng bộ hẹn giờ. Đừng lo, Forms
-              cung cấp cho bạn lời nhắc phút cuối trước khi gửi. Câu trả lời của
-              bạn sẽ được gửi tự động khi hết thời gian. Vui lòng chuẩn bị trước
-              khi bạn bắt đầu giúp quản lý thời gian gửi của bạn.
+              Sau khi bắt đầu, bạn không thể tạm dừng bộ hẹn giờ. Đừng lo, Forms cung cấp cho bạn
+              lời nhắc phút cuối trước khi gửi. Câu trả lời của bạn sẽ được gửi tự động khi hết thời
+              gian. Vui lòng chuẩn bị trước khi bạn bắt đầu giúp quản lý thời gian gửi của bạn.
             </p>
 
             {/* Button */}
@@ -214,15 +212,13 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
 
           <div className="text-center mb-8 px-4 md:px-10 pt-10">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">{form.title}</h1>
-            {form.description && (
-              <p className="text-lg text-gray-600">{form.description}</p>
-            )}
+            {form.description && <p className="text-lg text-gray-600">{form.description}</p>}
           </div>
 
           <div className="space-y-6 px-4 md:px-10">
             {form.questions
               .sort((a, b) => a.order - b.order)
-              .map((question) => (
+              .map(question => (
                 <QuestionRenderer
                   key={question.id}
                   question={question}
@@ -232,10 +228,10 @@ export const QuizViewer: React.FC<QuizViewerProps> = ({ form }) => {
                       : question.type === 'checkbox'
                         ? []
                         : question.type === 'radio'
-                          ? -1  // -1 means no selection
+                          ? -1 // -1 means no selection
                           : ''
                   }
-                  onAnswerChange={(answer) => handleAnswerChange(question.id, answer)}
+                  onAnswerChange={answer => handleAnswerChange(question.id, answer)}
                 />
               ))}
           </div>
