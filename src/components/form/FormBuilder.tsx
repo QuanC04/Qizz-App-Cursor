@@ -315,11 +315,13 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({
         // Update existing form (including auto-saved forms)
         await updateForm(formId, formData);
         alert(mode === 'edit' ? 'Cập nhật form thành công!' : 'Lưu form thành công!');
+        navigate({ to: '/dashboard' });
       } else {
         // Create new form (only if no auto-save has happened)
         const newFormId = await createForm(user.uid, formData);
         setFormId(newFormId);
         alert('Lưu form thành công!');
+        navigate({ to: '/dashboard' });
       }
     } catch (error) {
       console.error('Error saving form:', error);
